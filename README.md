@@ -140,7 +140,7 @@ Congratulations! You have won $1,000,000! Click here to claim.
 
 ### 1. Interface
 This is how the user interface of the app looks:
-![Interface](./images/interface.png)
+![Interface](images/interface.png)
 
 ### 2. Success: Not Spam Detection
 The email is classified as **Not Spam** with a confidence score:
