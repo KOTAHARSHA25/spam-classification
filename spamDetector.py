@@ -1,12 +1,40 @@
 import streamlit as st
 import pickle
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+
+# Initialize NLTK resources
+@st.cache_resource
+def download_nltk_resources():
+    try:
+        nltk.data.find('corpora/stopwords')
+    except LookupError:
+        nltk.download('stopwords', quiet=True)
+    try:
+        nltk.data.find('corpora/wordnet')
+    except LookupError:
+        nltk.download('wordnet', quiet=True)
+
+download_nltk_resources()
 
 # Load model and vectorizer
 model = pickle.load(open('spam.pkl', 'rb'))
 vectorizer = pickle.load(open('vectorizer.pkl', 'rb'))
 
+lemmatizer = WordNetLemmatizer()
+
+def preprocess_text(text):
+    text = re.sub(r'\W', ' ', text)
+    text = text.lower()
+    text = re.sub(r'\s+', ' ', text)
+    text = ' '.join([lemmatizer.lemmatize(word) for word in text.split() if word not in stopwords.words('english')])
+    return text
+
 def classify_email(email):
-    processed_input = vectorizer.transform([email]).toarray()
+    cleaned_email = preprocess_text(email)
+    processed_input = vectorizer.transform([cleaned_email]).toarray()
     prediction = model.predict(processed_input)[0]
     confidence = max(model.predict_proba(processed_input)[0]) * 100
     return prediction, confidence
